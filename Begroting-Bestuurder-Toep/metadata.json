@@ -1,0 +1,6 @@
+{
+  "name": "Begroting Bestuurder",
+  "description": "'n Volledige en visueel pragtige begrotingsbestuurder-toepassing wat jou help om jou inkomste, uitgawes en besparings op te spoor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
