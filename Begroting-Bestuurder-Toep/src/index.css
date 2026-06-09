@@ -1,24 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;555;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Google Sans", "Roboto", ui-sans-serif, system-ui, sans-serif;
+
+  /* Material You color tokens */
+  --md-primary: #6750A4;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #EADDFF;
+  --md-on-primary-container: #21005D;
+
+  --md-secondary: #625B71;
+  --md-secondary-container: #E8DEF8;
+
+  --md-tertiary: #7D5260;
+  --md-tertiary-container: #FFD8E4;
+
+  --md-surface: #FFFBFE;
+  --md-surface-variant: #E7E0EC;
+  --md-on-surface-variant: #49454F;
+  --md-outline: #79747E;
+  --md-outline-variant: #CAC4D0;
+
+  --md-error: #B3261E;
+  --md-error-container: #F9DEDC;
+
+  --md-success: #386A20;
+  --md-success-container: #C3EFAD;
 }
 
 html, body {
   font-family: var(--font-sans);
   scroll-behavior: smooth;
-  background-color: #f8fafc;
+  background-color: #FFFBFE;
+  color: #1C1B1F;
 }
 
-/* Custom print helper stylesheets in compliance with the original */
+/* Material You elevation surfaces */
+.md-surface-1 { background-color: #F4EEFF; }
+.md-surface-2 { background-color: #EDE7FB; }
+.md-surface-3 { background-color: #E8DEF8; }
+
+/* Material You state layers */
+.md-state-hover:hover { background-color: rgba(103, 80, 164, 0.08); }
+.md-state-pressed:active { background-color: rgba(103, 80, 164, 0.12); }
+
 @media print {
-  .no-print {
-    display: none !important;
-  }
-  .print-only {
-    display: block !important;
-  }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
   body {
     background-color: white !important;
     color: black !important;
@@ -28,39 +57,26 @@ html, body {
 }
 
 @media screen {
-  .print-only {
-    display: none !important;
-  }
+  .print-only { display: none !important; }
 }
 
-/* Custom micro-animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Material You animations */
+@keyframes mdFadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes mdRipple {
+  from { transform: scale(0); opacity: 0.3; }
+  to   { transform: scale(4); opacity: 0; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
-}
+.animate-fade-in { animation: mdFadeSlideUp 0.25s cubic-bezier(0.2, 0, 0, 1) forwards; }
 
-/* Custom scrollbars for item lists */
-.item-list::-webkit-scrollbar {
-  width: 5px;
-}
-.item-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.item-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-.item-list::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* Custom scrollbar — subtle Material style */
+.item-list::-webkit-scrollbar { width: 4px; }
+.item-list::-webkit-scrollbar-track { background: transparent; }
+.item-list::-webkit-scrollbar-thumb { background: #CAC4D0; border-radius: 9999px; }
+.item-list::-webkit-scrollbar-thumb:hover { background: #79747E; }
 
+/* Bottom nav safe area */
+.bottom-nav-pad { padding-bottom: 80px; }

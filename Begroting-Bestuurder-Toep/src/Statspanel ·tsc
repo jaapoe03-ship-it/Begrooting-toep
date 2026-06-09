@@ -1,0 +1,184 @@
+import React from 'react';
+import { TrendingUp, CreditCard, PiggyBank, Flame, DollarSign } from 'lucide-react';
+import { Income, Expense, AnderExpense, Period } from '../types';
+
+interface StatsPanelProps {
+  incomes: Income[];
+  expenses: Expense[];
+  anderExpenses: AnderExpense[];
+  currentPeriod: Period | null;
+}
+
+export default function StatsPanel({ incomes, expenses, anderExpenses, currentPeriod }: StatsPanelProps) {
+  const formatRand = (v: number) => `R ${Number(v).toFixed(2)}`;
+
+  const getDaysBetween = (s: string, e: string) => {
+    const diff = Math.round((new Date(e).getTime() - new Date(s).getTime()) / (864e5)) + 1;
+    return diff > 0 ? diff : 0;
+  };
+
+  const ti = incomes.reduce((sum, item) => sum + item.amount, 0);
+  const te = expenses.reduce((sum, item) => sum + item.amount, 0);
+  const ta = anderExpenses.reduce((sum, item) => sum + item.amount, 0);
+  const tot = te + ta;
+  const bal = ti - tot;
+
+  const days = currentPeriod ? getDaysBetween(currentPeriod.start, currentPeriod.end) : 0;
+  const expPct = ti > 0 ? Math.min(100, (tot / ti) * 100) : 0;
+  const savPct = ti > 0 ? Math.max(0, (bal / ti) * 100) : 0;
+  const dailyAvg = days > 0 ? tot / days : 0;
+  const itemCount = incomes.length + expenses.length + anderExpenses.length;
+
+  const allExpenses = [
+    ...expenses.map(e => ({ name: e.name, amount: e.amount, isAnder: false })),
+    ...anderExpenses.map(e => ({ name: e.name, amount: e.amount, isAnder: true }))
+  ].sort((a, b) => b.amount - a.amount);
+  const topExp = allExpenses.slice(0, 5);
+
+  return (
+    <div className="no-print bg-[#FFFBFE] rounded-[28px] border border-[#E7E0EC] overflow-hidden shadow-sm" id="live-stats-panel">
+      {/* Card header */}
+      <div className="bg-[#E8DEF8] px-5 py-4 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-[#21005D] flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-[#6750A4]" />
+            Statistieke
+          </h3>
+          <p className="text-[11px] text-[#49454F] mt-0.5" id="ls-period-sub">
+            {currentPeriod ? `${currentPeriod.label} • ${days} dae` : 'Geen tydperk gekies nie'}
+          </p>
+        </div>
+        <span className="text-xs font-medium text-[#625B71] bg-white/60 px-2.5 py-1 rounded-full">
+          {itemCount} items
+        </span>
+      </div>
+
+      <div className="p-5 flex flex-col gap-4">
+        {/* Balance hero */}
+        <div
+          className={`p-4 rounded-[20px] flex items-center justify-between ${
+            bal >= 0 ? 'bg-[#C3EFAD]' : 'bg-[#F9DEDC]'
+          }`}
+          id="hero-balance-card"
+        >
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1C1B1F]/60">Oorskot</span>
+            <div className={`text-2xl font-bold mt-0.5 font-mono ${bal >= 0 ? 'text-[#0A3818]' : 'text-[#410E0B]'}`} id="hero-balance">
+              {formatRand(bal)}
+            </div>
+          </div>
+          <div className={`p-3 rounded-2xl ${bal >= 0 ? 'bg-[#386A20]/20' : 'bg-[#B3261E]/20'}`}>
+            <PiggyBank className={`w-6 h-6 ${bal >= 0 ? 'text-[#386A20]' : 'text-[#B3261E]'}`} />
+          </div>
+        </div>
+
+        {/* Income + Expense tonal cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-[#C3EFAD] p-3.5 rounded-[20px] flex flex-col gap-1" id="stat-card-income">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1.5 bg-[#386A20]/20 rounded-xl">
+                <DollarSign className="w-3.5 h-3.5 text-[#386A20]" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-[#1C1B1F]/60">Inkomste</span>
+            </div>
+            <div className="text-base font-bold text-[#0A3818] font-mono" id="hero-income">{formatRand(ti)}</div>
+          </div>
+
+          <div className="bg-[#F9DEDC] p-3.5 rounded-[20px] flex flex-col gap-1" id="stat-card-expenses">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1.5 bg-[#B3261E]/15 rounded-xl">
+                <CreditCard className="w-3.5 h-3.5 text-[#B3261E]" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-[#1C1B1F]/60">Uitgawes</span>
+            </div>
+            <div className="text-base font-bold text-[#410E0B] font-mono" id="hero-expense">{formatRand(tot)}</div>
+            <span className="text-[10px] text-[#49454F]" id="hero-ander-sub">wv. Ander: {formatRand(ta)}</span>
+          </div>
+        </div>
+
+        {/* Progress bars */}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between text-xs font-medium text-[#49454F]">
+              <span>💸 Uitgawe %</span>
+              <span className="font-bold text-[#1C1B1F]" id="ls-exp-pct-lbl">{Math.round(expPct)}%</span>
+            </div>
+            <div className="h-2 bg-[#E7E0EC] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#7D5260] to-[#B3261E] rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${expPct}%` }}
+                id="ls-exp-bar"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between text-xs font-medium text-[#49454F]">
+              <span>💰 Spaarkoers</span>
+              <span className="font-bold text-[#1C1B1F]" id="ls-sav-pct-lbl">{Math.round(savPct)}%</span>
+            </div>
+            <div className="h-2 bg-[#E7E0EC] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#386A20] to-[#4CAF50] rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${savPct}%` }}
+                id="ls-sav-bar"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics row */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'Dag gem.', value: formatRand(dailyAvg), id: 'ls-daily-avg' },
+            { label: 'Dae', value: String(days), id: 'ls-days' },
+            { label: 'Items', value: String(itemCount), id: 'ls-item-count' },
+          ].map((m) => (
+            <div key={m.id} className="bg-[#F4EEFF] border border-[#E7E0EC] p-2.5 rounded-2xl text-center">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-[#625B71] block">{m.label}</span>
+              <span className="text-xs font-bold text-[#21005D] block mt-0.5 truncate font-mono" id={m.id}>{m.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Top expenses */}
+        <div className="flex flex-col gap-2.5" id="ls-top-section">
+          <div className="text-xs font-bold text-[#625B71] uppercase tracking-wider flex items-center gap-1.5">
+            <Flame className="w-3.5 h-3.5 text-[#E8710A]" />
+            Top uitgawes
+          </div>
+          <div className="flex flex-col gap-1.5" id="ls-top-list">
+            {topExp.length === 0 ? (
+              <div className="text-center py-6 text-[#79747E] italic text-xs bg-[#F4EEFF] border border-dashed border-[#CAC4D0] rounded-2xl" id="ls-empty">
+                Voeg uitgawes by om top items te sien.
+              </div>
+            ) : (
+              topExp.map((item, idx) => {
+                const itemPct = tot > 0 ? ((item.amount / tot) * 100).toFixed(1) : '0';
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between text-xs py-2 px-3 bg-[#F4EEFF] hover:bg-[#E8DEF8] border border-[#E7E0EC] rounded-2xl transition-all duration-150"
+                  >
+                    <span className="font-medium text-[#1C1B1F] truncate max-w-[120px]">
+                      {item.name}
+                      {item.isAnder && (
+                        <span className="ml-1 text-[9px] text-[#625B71] bg-[#E8DEF8] px-1.5 py-0.5 rounded-full">Ander</span>
+                      )}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-[#7D5260] bg-[#FFD8E4] px-2 py-0.5 rounded-full">
+                        {itemPct}%
+                      </span>
+                      <span className="font-bold text-[#1C1B1F] font-mono">{formatRand(item.amount)}</span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
